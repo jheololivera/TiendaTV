@@ -1,21 +1,97 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 👇 MODELOS
+
+model Tienda {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  usuarios  Usuario[]
+  productos Producto[]
+  ventas    Venta[]
+}
+
+model Usuario {
+  id        Int     @id @default(autoincrement())
+  nombre    String
+  email     String  @unique
+  password  String
+  rol       Rol
+  tiendaId  Int
+  tienda    Tienda  @relation(fields: [tiendaId], references: [id])
+}
+
+enum Rol {
+  ADMIN
+  EMPLEADO
 }
 
 model Producto {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   nombre    String
-  precio    Float
-  stock     Int
-  createdAt DateTime @default(now())
+  marca     String
+  modelo    String
+  tiendaId  Int
+  tienda    Tienda    @relation(fields: [tiendaId], references: [id])
+  variantes Variante[]
+}
+
+model Variante {
+  id             Int    @id @default(autoincrement())
+  productoId     Int
+  producto       Producto @relation(fields: [productoId], references: [id])
+  tamano         Int
+  precio         Float
+  costo          Float?
+  stock          Int
+  codigoBarras   String?
+  movimientos    MovimientoInventario[]
+}
+
+model Venta {
+  id           Int       @id @default(autoincrement())
+  fecha        DateTime  @default(now())
+  total        Float
+  descuento    Float
+  metodoPago   MetodoPago
+  usuarioId    Int
+  tiendaId     Int
+  detalles     DetalleVenta[]
+}
+
+model DetalleVenta {
+  id           Int     @id @default(autoincrement())
+  ventaId      Int
+  varianteId   Int?
+  nombreManual String?
+  precio       Float
+  cantidad     Int
+  costo        Float?
+  venta        Venta   @relation(fields: [ventaId], references: [id])
+}
+
+model MovimientoInventario {
+  id          Int       @id @default(autoincrement())
+  varianteId  Int
+  tipo        TipoMovimiento
+  cantidad    Int
+  motivo      String?
+  fecha       DateTime  @default(now())
+}
+
+enum MetodoPago {
+  EFECTIVO
+  QR
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+  AJUSTE
 }
