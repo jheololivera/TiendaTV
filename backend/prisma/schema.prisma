@@ -4,13 +4,12 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // 👇 MODELOS
 
 model Tienda {
-  id        Int      @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   nombre    String
   usuarios  Usuario[]
   productos Producto[]
@@ -18,13 +17,13 @@ model Tienda {
 }
 
 model Usuario {
-  id        Int     @id @default(autoincrement())
-  nombre    String
-  email     String  @unique
-  password  String
-  rol       Rol
-  tiendaId  Int
-  tienda    Tienda  @relation(fields: [tiendaId], references: [id])
+  id       Int    @id @default(autoincrement())
+  nombre   String
+  email    String @unique
+  password String
+  rol      Rol
+  tiendaId Int
+  tienda   Tienda @relation(fields: [tiendaId], references: [id])
 }
 
 enum Rol {
@@ -33,36 +32,37 @@ enum Rol {
 }
 
 model Producto {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   nombre    String
   marca     String
   modelo    String
   tiendaId  Int
-  tienda    Tienda    @relation(fields: [tiendaId], references: [id])
+  tienda    Tienda     @relation(fields: [tiendaId], references: [id])
   variantes Variante[]
 }
 
 model Variante {
-  id             Int    @id @default(autoincrement())
-  productoId     Int
-  producto       Producto @relation(fields: [productoId], references: [id])
-  tamano         Int
-  precio         Float
-  costo          Float?
-  stock          Int
-  codigoBarras   String?
-  movimientos    MovimientoInventario[]
+  id           Int                    @id @default(autoincrement())
+  productoId   Int
+  producto     Producto               @relation(fields: [productoId], references: [id])
+  tamano       Int
+  precio       Float
+  costo        Float?
+  stock        Int
+  codigoBarras String?
+  movimientos  MovimientoInventario[]
 }
 
 model Venta {
-  id           Int       @id @default(autoincrement())
-  fecha        DateTime  @default(now())
-  total        Float
-  descuento    Float
-  metodoPago   MetodoPago
-  usuarioId    Int
-  tiendaId     Int
-  detalles     DetalleVenta[]
+  id         Int            @id @default(autoincrement())
+  fecha      DateTime       @default(now())
+  total      Float
+  descuento  Float
+  metodoPago MetodoPago
+  usuarioId  Int
+  tiendaId   Int
+  detalles   DetalleVenta[]
+  tienda     Tienda         @relation(fields: [tiendaId], references: [id])
 }
 
 model DetalleVenta {
@@ -77,12 +77,13 @@ model DetalleVenta {
 }
 
 model MovimientoInventario {
-  id          Int       @id @default(autoincrement())
-  varianteId  Int
-  tipo        TipoMovimiento
-  cantidad    Int
-  motivo      String?
-  fecha       DateTime  @default(now())
+  id         Int            @id @default(autoincrement())
+  varianteId Int
+  tipo       TipoMovimiento
+  cantidad   Int
+  motivo     String?
+  fecha      DateTime       @default(now())
+  variante   Variante       @relation(fields: [varianteId], references: [id])
 }
 
 enum MetodoPago {

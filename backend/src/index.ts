@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import productoRoutes from "./routes/producto.routes";
 
 dotenv.config();
 
@@ -16,3 +17,5 @@ app.get("/", (req, res) => {
 app.listen(3000, () => {
   console.log("Servidor en http://localhost:3000");
 });
+
+app.use("/api/productos", productoRoutes);
